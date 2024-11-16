@@ -5,16 +5,6 @@ date: "2024-11-01"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-# knitr::opts_chunk$set(message=FALSE, warnings=FALSE, echo = TRUE)
-#remove.packages("rlang")
-#install.packages("rlang", dependencies = TRUE)
-# packageVersion("rlang")
-# install.packages("sf")
-# install.packages(ggExtra)
-```
-
-
 ```{r}
 library(tidyverse)
 library(janitor) # cleaning data
@@ -28,15 +18,10 @@ library(sf)
 Read the population data and Health Board names datasets, clean names and select the relevant columns
 ```{r}
  population_data <- read_csv("C:/Data_Science/B223640/data/UV103_age_health_board_census.csv", skip = 10) %>%
-  # Rename the last column to avoid the messy name in column 6
-  # and to match column names with the prescription dataset
   rename(hb_name = "Health Board Area 2019",
          hb_population = Count) %>% 
-  # filter the data so that we get the population of the entire health board
   filter(Age == "All people" & Sex == "All people") %>% 
-  # select only the relevant columns
   select(hb_name, hb_population) %>% 
-  # change health board names so they match the prescription data
   mutate(hb_name = paste("NHS", hb_name)) %>% 
   arrange(desc(hb_population))
 
@@ -73,7 +58,6 @@ library(tidyverse)
 # List all CSV files in the "summer_20-23" folder
 examfiles <- list.files("C:/Data_Science/B223640/data/examszn_19-23", pattern = "csv", full.names = TRUE)
 
-# Define column types explicitly
 column_types <- cols(
   HBT = col_character(),
   DMDCode = col_character(), # Ensures DMDCode is read as character in all files
@@ -87,18 +71,18 @@ column_types <- cols(
   PaidDateMonth = col_double()
 )
 
-# Load and combine the files into one data frame
 examszndata <- examfiles %>% 
   map_dfr(~read_csv(., col_types = column_types))
 
-# List all winter CSV files in the "winter_20-23" folder
 nonexamfiles <- list.files("C:/Data_Science/B223640/data/nonexamszn_19-23", pattern = "csv", full.names = TRUE)
-# Load and combine the files into one data frame
+
 nonexamszndata <- nonexamfiles %>% 
   map_dfr(~read_csv(., col_types = column_types))
 ```
 
-joining the the exam and exam season datasets with the HB_names and population_data sets and filter for the SSRIs and SNRIs commonly prescribed for exam-stress related anxiety and depression.
+joining the the exam and exam season datasets with the HB_names and population_data sets and filter for the SSRIs and SNRIs commonly prescribed for exam-stress related anxiety and depression. the exam season data was filtered to include only rows for University health board regions(the 6 healthboard with the highest percentage of persons 18-25 years of age). This would help narrow the scope to only investigate the trends where young persons are more prevalent.
+
+
 ```{r}
 examszndata1 <- examszndata %>%
   clean_names() %>% 
@@ -126,7 +110,6 @@ Pivot wider to find the individual total prescriptions of each medication for ea
 library(dplyr)
 library(stringr)
 
-# Assuming your data is in a dataframe called `df`
  examszndatawide <- examszndata %>%
    clean_names() %>% 
   mutate(bnf_item_description = str_remove(bnf_item_description, "[_\\s].*")) %>% 
@@ -145,8 +128,6 @@ library(stringr)
    mutate(average_prescription = rowMeans(across(CITALOPRAM:VENLAFAXINE), na.rm = TRUE)) %>% 
    arrange(desc(average_prescription)) %>% 
    gt()
- 
-
  
 nonexamszndatawide <- nonexamszndata %>%
    clean_names() %>% 
@@ -168,27 +149,6 @@ nonexamszndatawide <- nonexamszndata %>%
 
 
 ```{r}
-# Assuming both dataframes have the same columns and are keyed by `hb_name`
-# library(dplyr)
-
-# Join the examdata and nonexamdata on hb_name
-# combined_data <- examszndata %>%
-#   inner_join(nonexamszndata, by = "hb_name", suffix = c("_exam", "_nonexam"))
-# 
-# # Calculate the difference for each drug
-# difference_data <- combined_data %>%
-#   mutate(across(ends_with("_exam"), 
-#                 ~ . - get(gsub("_exam", "_nonexam", cur_column())), 
-#                 .names = "diff_{.col}")) %>%
-#   select(hb_name, starts_with("diff_"))
-# 
-# # Rename the columns to be more descriptive
-# difference_data <- difference_data %>%
-#   rename_with(~ gsub("diff_bnf_item_description_", "", .), starts_with("diff_"))
-
-```
-
-```{r}
 
 examseasontry <- examszndata1 %>%
     mutate(bnf_item_description = str_remove(bnf_item_description, "[_\\s].*")) %>%
@@ -208,10 +168,8 @@ nonexamseasontry <- nonexamszndata1 %>%
   mutate(Season = "nonexamseason")%>% 
   mutate(per_person = total_prescription/hb_population)
 
-# Combine the two datasets
 combined_data <- bind_rows(examseasontry, nonexamseasontry)
 
-# Create the boxplot
 ggplot(combined_data, aes(x = Season, y = total_prescription)) +
   geom_boxplot() +
   geom_jitter(width = 0.2, alpha = 0.5, color = "blue")
@@ -223,11 +181,11 @@ ggplot(combined_data, aes(x = Season, y = total_prescription)) +
 ```
 Throughout 2019 to 2023 cumulatively, total prescriptions of SNRIs and SSRIs increase in the months when scottish universities have exams, but only slightly.
 
+Trends of each medication could be plotted on a time series graph for each year to see if there are any patterns which indicate increase in prescription rates during exam seasons. 
 
-```
-Graph of total prescriptions 
+Graph of total prescriptions against the total number of persons aged 18-25 in each university healthboard regions. 
 ```{r}
-# For exam season
+
 combined_data %>%
   ggplot(aes(x = totalpeople, y = total_prescription, color = Season)) +
   geom_point() +
