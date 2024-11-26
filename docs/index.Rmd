@@ -5,7 +5,7 @@ date: "2024-11-01"
 output: 
   html_document:
     toc: yes
-    toc_depth: 3
+    toc_depth: 2
     number_sections: true
     toc_float:
       collapsed: false
@@ -15,7 +15,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
-## Introduction
+# Introduction
 
 Mental health challenges among university students are a growing concern, with academic stress often contributing to anxiety and depression. This analysis examines the impact of exam and non-exam periods on SSRI and SNRI prescription rates across Scottish health boards from 2018 to 2023. 
 
@@ -35,7 +35,7 @@ library(tidyverse)
 ```
 # Data cleaning and processing
 
-## Load and clean demographic datasets
+*Load and clean demographic datasets*
 
 - `HB_names` dataset is processed to select only the health board code and names.
 - `population_data` is processed to extract the total population of each health board.
@@ -72,7 +72,7 @@ age_data <- read.csv("C:/Data_Science/B223640/data/UV103_age_health_board_census
 
   
 ```
-## Loading the Exam Season and Non-Exam Season Datasets from 2018 to 2023
+**Loading the Exam Season and Non-Exam Season Datasets from 2018 to 2023**
 
 The **exam season** includes:
 - Semester 1 finals (November and December).
@@ -113,9 +113,9 @@ nonexamszndata <- nonexamfiles %>%
   map_dfr(~read_csv(., col_types = column_types))
 
 ```
-# Processed prescription data to focus on SSRIs and SNRIs and joined with demographic data.
+# Processing prescription data to focus on SSRIs and SNRIs and joined with demographic data.
 
-### Steps for Analysis and the Role of `pivot_wider()`
+**Steps for Analysis and the Role of `pivot_wider()`**
 
 1. - Compute the prescription rates for SSRIs and SNRIs during both exam and non-exam periods by accounting for the total population in each health board.
 
@@ -246,7 +246,7 @@ pretty_table <- combined_prescriptions %>%
 pretty_table
 
 ```
-### Key Findings 
+**Key Findings**
 
 The table reveals that most health boards show higher prescription rates during exam periods, with an average increase from 69.68 to 73.31 prescriptions per capita. Tayside (+10.48%) and Fife (+7.77%) exhibit the most significant increases, reflecting heightened academic stress. In contrast, Lanarkshire shows a slight decrease (-0.59%), indicating regional variations in mental health needs or prescribing practices.
 
@@ -257,7 +257,7 @@ These findings highlight the need for targeted mental health interventions durin
 
 # Processing Data for Exam and Non-Exam Seasons
 
-## Define a Function to Process the Data
+**Define a Function to Process the Data**
 
 The following function processes the exam and non-exam datasets:
 - Cleans column names.
@@ -325,26 +325,22 @@ interactive_plot <- ggplotly(p, tooltip = c("x", "fill"))
 interactive_plot
 
 ```
-## Results: Seasonal Variations in SSRI and SNRI Prescriptions Across Scottish Health Boards
+**Results: Seasonal Variations in SSRI and SNRI Prescriptions Across Scottish Health Boards**
 
-### General Trends
 - Total prescriptions for SSRIs and SNRIs differ between **exam** and **non-exam seasons**, with higher rates during exam periods, suggesting increased stress among students.
 
-### Health Board Variability
 - **Greater Glasgow and Clyde** and **Lothian** have the highest total prescriptions, correlating with larger student populations.
 - **Fife**, **Forth Valley**, and **Tayside** show lower totals but follow similar seasonal patterns.
 
-### Drug-Specific Observations
 - **Sertraline**, **Fluoxetine**, and **Citalopram** are the most commonly prescribed drugs, while **Escitalopram** and **Paroxetine** have lower rates.
 
-### Seasonal Prescription Differences
 - Exam seasons show a slight increase in prescriptions, highlighting academic stress as a driver for mental health support.
 
 
-## Combining and Analyzing Prescription Data Across Exam and Non-Exam Periods
+*Combining and Analyzing Prescription Data Across Exam and Non-Exam Periods*
 
 ### Merging and Cleaning the Data
-The following code combines the exam and non-exam datasets (`examszndata` and `nonexamszndata`) into a single dataset, `joinedfulldata`. Key steps include:
+This code combines the exam and non-exam datasets (`examszndata` and `nonexamszndata`) into a single dataset, `joinedfulldata`. Key steps include:
 - Cleaning column names for consistency.
 - Joining with demographic datasets (`HB_names` and `population_data`)
 - Filtering the data to focus on:
@@ -380,16 +376,16 @@ joinedfulldata <- joinedfulldata %>%
 
 ```
 
-## Yearly Trends of Drug Prescriptions by academic period
+**Yearly Trends of Drug Prescriptions by academic period**
 
 The following code visualizes the yearly trends in total paid quantities of six commonly prescribed SSRIs and SNRIs across four academic periods: **Semester 1 Finals**, **Semester 2 Finals**, **Semester 1 Start**, and **Semester 2 Start**. The visualization allows comparisons of prescription trends over time for each drug.
 
-### Key Features:
+###Key Features:
 - **Line Chart**: Displays the trends in total paid quantities over the years, grouped by period.
 - **Faceted by Drug**: Each drug (e.g., Citalopram, Sertraline) is shown in a separate panel for clarity.
 - **Dynamic Tooltips**: The interactive plot provides additional information when hovering over the lines.
 
-```{r}
+```{r, fig.width=14, fig.height=10}
 library(stringr)
 
 summary_data2 <- joinedfulldata %>%
@@ -406,7 +402,7 @@ interactive_plot <- ggplotly(
   ggplot(summary_data2, aes(x = year, y = total_paid_quantity, color = period, group = period)) +
     geom_line(size = 1) +
     geom_point(size = 2) +
-    facet_wrap(~ bnf_item_description, scales = "free_y") +
+    facet_wrap(~ bnf_item_description, scales = "free_y", ncol = 2) +  # Adjust number of columns for better spacing
     labs(
       title = "Yearly Trends of Drug Prescriptions",
       x = "Year",
@@ -415,12 +411,14 @@ interactive_plot <- ggplotly(
     ) +
     theme_minimal() +
     theme(
-      strip.text = element_text(size = 10, face = "bold"),
-      axis.text.x = element_text(angle = 45, hjust = 1)
+      strip.text = element_text(size = 8, face = "bold"),              # Reduce facet strip text size
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 8),    # Reduce x-axis label size
+      axis.text.y = element_text(size = 8)                            # Reduce y-axis label size
     ),
-  tooltip = c("x", "y", "color")
+  tooltip = c("x", "y", "color")                                      # Keep relevant tooltips only
 )
 interactive_plot
+
 
 ```
 
