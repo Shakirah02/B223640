@@ -1,5 +1,5 @@
 ---
-title: "How do prescription patterns for SSRIs and SNRIs vary between exam and non-exam periods in university health board regions from 2018 to 2023, and what trends are observed over this period?"
+title: "How do prescription patterns for SSRIs and SNRIs vary between exam and non-exam academic periods in university health board regions from 2018 to 2023, and what trends are observed over this period?"
 author: "Syakirah"
 date: "2024-11-01"
 output: 
@@ -35,7 +35,7 @@ library(tidyverse)
 ```
 # Data cleaning and processing
 
-*Load and clean demographic datasets*
+**Load and clean demographic datasets**
 
 - `HB_names` dataset is processed to select only the health board code and names.
 - `population_data` is processed to extract the total population of each health board.
@@ -71,17 +71,27 @@ age_data <- read.csv("C:/Data_Science/B223640/data/UV103_age_health_board_census
   arrange(desc(percentage))
 
 ```
-**Loading the Exam Season and Non-Exam Season Datasets from 2018 to 2023**
+**Loading and processing the exam season and non-exam season datasets from 2018 to 2023**
 
-The **exam season** includes:
+The **exam season** dataset includes:
+
 - Semester 1 finals (November and December).
 - Semester 2 finals (April and May), as SSRI and SNRI treatments typically require at least four weeks to take effect (Ankrom, 2024).
 
-The **non-exam season** is defined as:
+The **non-exam season** dataset includes data from:
+
 - The first two months of the university semester (Vedhara et al., 1999):
   - Semester 1 start: September and October.
   - Semester 2 start: January and February.
-- During these periods, students typically experience lighter workloads and less stress compared to exam periods .
+- During these periods, students typically experience lighter workloads and less stress compared to exam periods.
+
+**Processing the exam season and non-exam season datasets**
+
+- Cleaning column names for consistency.
+- Joining with demographic datasets (`HB_names` and `age_data`)
+- Filtering the data to focus on:
+  - Six health boards with a high prevalence of young adults: **Lothian**, **Grampian**, **Greater Glasgow and Clyde**, **Tayside**, **Fife**, **Forth Valley**, and **Lanarkshire**.
+  - Six commonly prescribed SSRIs and SNRIs: **Escitalopram**, **Sertraline**, **Fluoxetine**, **Venlafaxine**, **Paroxetine**, and **Citalopram**.
 
 
 ```{r}
@@ -122,7 +132,7 @@ examszndata <- process_exam_nonexam_data(examfiles, HB_names, age_data)
 nonexamszndata <- process_exam_nonexam_data(nonexamfiles, HB_names, age_data)
 
 ```
-# Processing prescription data to focus on SSRIs and SNRIs and joined with demographic data.
+# Processing prescription data to focus on SSRIs and SNRIs and demographic data.
 
 **Steps for Analysis and the Role of `pivot_wider()`**
 
@@ -339,11 +349,7 @@ interactive_plot
 
 **Merging and Cleaning the Data**
 This code combines the exam and non-exam datasets (`examszndata` and `nonexamszndata`) into a single dataset, `joinedfulldata`. Key steps include:
-- Cleaning column names for consistency.
-- Joining with demographic datasets (`HB_names` and `population_data`)
-- Filtering the data to focus on:
-  - Six health boards with a high prevalence of young adults: **Lothian**, **Grampian**, **Greater Glasgow and Clyde**, **Tayside**, **Fife**, **Forth Valley**, and **Lanarkshire**.
-  - Six commonly prescribed SSRIs and SNRIs: **Escitalopram**, **Sertraline**, **Fluoxetine**, **Venlafaxine**, **Paroxetine**, and **Citalopram**.
+
 - Extracting year and categorizing data into four academic periods: **Semester 1 Finals**, **Semester 2 Finals**, **Semester 1 Start**, and **Semester 2 Start**.
 - Grouping by `year` and `period` for analysis.
 
