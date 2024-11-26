@@ -70,7 +70,6 @@ age_data <- read.csv("C:/Data_Science/B223640/data/UV103_age_health_board_census
   mutate(percentage = totalpeople * 100 / hb_population) %>% 
   arrange(desc(percentage))
 
-  
 ```
 **Loading the Exam Season and Non-Exam Season Datasets from 2018 to 2023**
 
@@ -102,15 +101,25 @@ column_types <- cols(
   PaidDateMonth = col_double()
 )
 
-# List all CSV files in the "examszn_18-23" folder
-examfiles <- list.files("C:/Data_Science/B223640/data/examszn_18-23", pattern = "csv", full.names = TRUE)
-examszndata <- examfiles %>% 
-  map_dfr(~read_csv(., col_types = column_types))
+# Define a reusable function to process datasets
+process_exam_nonexam_data <- function(file_paths, hb_names, age_data) {
+  file_paths %>%
+    map_dfr(~ read_csv(., col_types = column_types)) %>%
+    clean_names() %>%
+    mutate(bnf_item_description = str_remove(bnf_item_description, "[_\\s].*")) %>%
+    full_join(hb_names, by = c("hbt" = "hbt")) %>%
+    full_join(age_data, by = "hb_name") %>%
+    filter(str_detect(bnf_item_description, "ESCITALOPRAM|SERTRALINE|FLUOXETINE|VENLAFAXINE|PAROXETINE|CITALOPRAM")) %>%
+    filter(hb_name %in% c("Lothian", "Grampian", "Greater Glasgow and Clyde", "Tayside", "Fife", "Forth Valley", "Lanarkshire"))
+}
 
-# List all CSV files in the "nonexamszn_18-23" folder
+# List all CSV files for exam and non-exam datasets
+examfiles <- list.files("C:/Data_Science/B223640/data/examszn_18-23", pattern = "csv", full.names = TRUE)
 nonexamfiles <- list.files("C:/Data_Science/B223640/data/nonexamszn_18-23", pattern = "csv", full.names = TRUE)
-nonexamszndata <- nonexamfiles %>% 
-  map_dfr(~read_csv(., col_types = column_types))
+
+# Process the exam and non-exam datasets using the function
+examszndata <- process_exam_nonexam_data(examfiles, HB_names, age_data)
+nonexamszndata <- process_exam_nonexam_data(nonexamfiles, HB_names, age_data)
 
 ```
 # Processing prescription data to focus on SSRIs and SNRIs and joined with demographic data.
@@ -140,12 +149,6 @@ library(dplyr)
 # Define a reusable function to process wide-format data
 process_wide_data <- function(data) {
   data %>%
-    clean_names() %>%
-    mutate(bnf_item_description = str_remove(bnf_item_description, "[_\\s].*")) %>%
-    full_join(HB_names) %>%
-    full_join(age_data) %>%
-    filter(str_detect(bnf_item_description, "ESCITALOPRAM|SERTRALINE|FLUOXETINE|VENLAFAXINE|PAROXETINE|CITALOPRAM")) %>%
-    filter(str_detect(hb_name, "Lothian|Grampian|Greater Glasgow and Clyde|Tayside|Fife|Forth Valley|Lanarkshire")) %>%
     mutate(hb_name = str_remove(hb_name, "^NHS\\s")) %>%
     select(hb_name, bnf_item_description, paid_date_month, hb_population, paid_quantity) %>%
     group_by(hb_name, bnf_item_description) %>%
@@ -172,6 +175,7 @@ examszndatawide <- examszndatawide %>%
 
 nonexamszndatawide <- nonexamszndatawide %>%
   mutate(prescription_per_capita = total_prescriptions / hb_population)
+
 ```
 
 ```{r}
@@ -272,13 +276,6 @@ The following function processes the exam and non-exam datasets:
 # Define a function to process the data
 process_data <- function(data, season) {
   data %>%
-    clean_names() %>%
-    mutate(bnf_item_description = str_remove(bnf_item_description, "[_\\s].*")) %>%
-    full_join(HB_names) %>%
-    full_join(population_data) %>%
-    full_join(age_data) %>%
-    filter(str_detect(bnf_item_description, "ESCITALOPRAM|SERTRALINE|FLUOXETINE|VENLAFAXINE|PAROXETINE|CITALOPRAM")) %>%
-    filter(str_detect(hb_name, "Lothian|Grampian|Greater Glasgow and Clyde|Tayside|Fife|Forth Valley|Lanarkshire")) %>%
     group_by(hb_name, bnf_item_description, totalpeople, percentage, hb_population) %>%
     summarise(total_prescription = sum(paid_quantity, na.rm = TRUE)) %>%
     filter(!is.na(bnf_item_description)) %>%
@@ -298,7 +295,7 @@ combined_data <- bind_rows(examszndata1, nonexamszndata1) %>%
 
 ```
 
-```{r, fig.width=8, fig.height=4}
+```{r, fig.width=10, fig.height=4}
 library(forcats)
 library(ggplot2)
 library(plotly)
@@ -357,12 +354,6 @@ joinedfulldata <- examszndata %>%
   full_join(nonexamszndata)
 
 joinedfulldata <- joinedfulldata %>% 
-  clean_names() %>% 
-  full_join(HB_names) %>% 
-  full_join(population_data) %>% 
-  select(hb_name, bnf_item_description, paid_date_month, paid_quantity) %>% 
-  filter(str_detect(bnf_item_description, "ESCITALOPRAM|SERTRALINE|FLUOXETINE|VENLAFAXINE|PAROXETINE|CITALOPRAM"))%>%
-  filter(str_detect(hb_name, "Lothian|Grampian|Greater Glasgow and Clyde|Tayside|Fife|Forth Valley|Lanarkshire")) %>%
    mutate(bnf_item_description = str_remove(bnf_item_description, "[_\\s].*")) %>% 
   mutate(
      year = substr(paid_date_month, 1, 4),
@@ -384,7 +375,7 @@ The next step summarizes the total quantity of prescriptions paid (paid_quantity
 - *Line Plot*: Connects the yearly totals to highlight trends over time.
 - *Facet Wrap: Separates the visualization by the four periods (Semester 1 Finals, **Semester 2 Finals, **Semester 1 Start, **Semester 2 Start*) for clarity.
 
-```{r, fig.width=8, fig.height=4}
+```{r, fig.width=10, fig.height=4}
 library(ggplot2)
 library(plotly)
 
@@ -436,7 +427,7 @@ Post-2020 Surge: Growth is particularly notable from 2020 onwards, likely linked
 
 The following code visualizes the yearly trends in total paid quantities of six commonly prescribed SSRIs and SNRIs across four academic periods: **Semester 1 Finals**, **Semester 2 Finals**, **Semester 1 Start**, and **Semester 2 Start**. The visualization allows comparisons of prescription trends over time for each drug.
 
-```{r, fig.width=8, fig.height=4}
+```{r, fig.width=10, fig.height=4}
 library(stringr)
 
 summary_data2 <- joinedfulldata %>%
