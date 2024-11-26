@@ -33,9 +33,9 @@ library(here)
 library(dbplyr)
 library(tidyverse)
 ```
-# Loading and Cleaning Datasets
+# Data cleaning and processing
 
-## Load and clean demographic datasets - "HB_names", "population_data" and "age_data"
+## Load and clean demographic datasets
 
 - `HB_names` dataset is processed to select only the health board code and names.
 - `population_data` is processed to extract the total population of each health board.
@@ -113,19 +113,22 @@ nonexamszndata <- nonexamfiles %>%
   map_dfr(~read_csv(., col_types = column_types))
 
 ```
-# Processing Datasets into Wide Format
+# Processed prescription data to focus on SSRIs and SNRIs and joined with demographic data.
 
-This code generates a table that compares prescription per capita for SSRIs and SNRIs during exam and non-exam periods across Scottish health boards. 
+### Steps for Analysis and the Role of `pivot_wider()`
 
-### Steps:
-1.- Calculate the prescription rates for SSRIs and SNRIs per capita for both exam and non-exam periods.
-  - This accounts for the total population in each health board.
+1. - Compute the prescription rates for SSRIs and SNRIs during both exam and non-exam periods by accounting for the total population in each health board.
 
-2. - Incorporate the percentage of individuals aged 18–25 from the demographic data for each health board.
+2. - Add the percentage of individuals aged 18–25 from the demographic data to assess the influence of young adult populations on prescription trends.
 
-3. - Compute the percentage change in prescription rates between exam and non-exam periods to highlight   differences.
+3. - Calculate the percentage change in prescription rates between exam and non-exam periods to identify seasonal differences in mental health needs.
 
-4. - Use the `gt` package to create a clean and visually appealing table for presentation.
+4.  - Use `pivot_wider()` to convert the data from long to wide format, where each drug becomes a separate column:
+     - **Organizes Drug-Specific Data**: Makes it easier to compare prescriptions across health boards.
+     - **Facilitates Summation**: Allows row-wise calculations of total prescriptions across all drugs for each health board.
+     - **Prepares for Per Capita Calculations**: Enables easy computation of prescriptions per capita by dividing total prescriptions by population.
+     - **Readable Tables**: Produces a concise and clean structure for creating visually appealing summaries.
+5.- Use the `gt` package to generate a well-formatted table that summarizes key metrics, including per capita rates, demographic data, and percentage changes, for clear presentation of findings.
 
 ```{r}
 # Load required libraries
@@ -243,18 +246,13 @@ pretty_table <- combined_prescriptions %>%
 pretty_table
 
 ```
-### Key Findings
+### Key Findings 
 
-- **Prescription Per Capita (Exam vs. Non-Exam)**:
-  - Most health boards show higher per capita prescription rates during exam seasons (e.g., **Tayside**: +10.48%, **Fife**: +7.77%).
-  - **Lanarkshire** shows a slight decrease (-0.59%), indicating other influencing factors beyond academic stress.
+The table reveals that most health boards show higher prescription rates during exam periods, with an average increase from 69.68 to 73.31 prescriptions per capita. Tayside (+10.48%) and Fife (+7.77%) exhibit the most significant increases, reflecting heightened academic stress. In contrast, Lanarkshire shows a slight decrease (-0.59%), indicating regional variations in mental health needs or prescribing practices.
 
-- **Percentage Change**:
-  - Regions like **Tayside** and **Fife** exhibit the most significant increases in prescription rates during exam seasons, suggesting exam stress plays a critical role.
-  - **Lothian**, despite having the highest percentage of young adults (25.61%), does not exhibit high prescription rates, highlighting potential differences in prescribing practices or other regional factors.
+While regions with higher young adult populations, such as Greater Glasgow and Clyde (25.06%), generally have elevated prescription rates, Lothian (25.61%) does not follow this trend, suggesting alternative support systems or differing prescribing norms.
 
-- **Demographic Correlation**:
-  - While regions with a high percentage of young adults (e.g., **Greater Glasgow and Clyde**: 25.06%) often show elevated prescription rates, **Lothian** is an exception, emphasizing the need to explore other contributing factors.
+These findings highlight the need for targeted mental health interventions during exam periods, particularly in regions with significant increases, and further investigation into prescribing disparities to ensure equitable support across Scotland.
 
 
 # Processing Data for Exam and Non-Exam Seasons
@@ -342,17 +340,13 @@ interactive_plot
 ### Seasonal Prescription Differences
 - Exam seasons show a slight increase in prescriptions, highlighting academic stress as a driver for mental health support.
 
-### Potential Correlations
-- Health boards with higher proportions of young adults (e.g., **Greater Glasgow and Clyde**) tend to have higher prescription totals, linking demographics to prescription trends.
-
-
 
 ## Combining and Analyzing Prescription Data Across Exam and Non-Exam Periods
 
 ### Merging and Cleaning the Data
 The following code combines the exam and non-exam datasets (`examszndata` and `nonexamszndata`) into a single dataset, `joinedfulldata`. Key steps include:
 - Cleaning column names for consistency.
-- Joining with demographic datasets (`HB_names` and `population_data`) to enrich the data with health board names and population details.
+- Joining with demographic datasets (`HB_names` and `population_data`)
 - Filtering the data to focus on:
   - Six health boards with a high prevalence of young adults: **Lothian**, **Grampian**, **Greater Glasgow and Clyde**, **Tayside**, **Fife**, **Forth Valley**, and **Lanarkshire**.
   - Six commonly prescribed SSRIs and SNRIs: **Escitalopram**, **Sertraline**, **Fluoxetine**, **Venlafaxine**, **Paroxetine**, and **Citalopram**.
