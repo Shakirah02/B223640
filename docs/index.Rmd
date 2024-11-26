@@ -79,10 +79,10 @@ The **exam season** includes:
 - Semester 2 finals (April and May), as SSRI and SNRI treatments typically require at least four weeks to take effect (Ankrom, 2024).
 
 The **non-exam season** is defined as:
-- The first two months of the university semester:
+- The first two months of the university semester (Vedhara et al., 1999):
   - Semester 1 start: September and October.
   - Semester 2 start: January and February.
-- During these periods, students typically experience lighter workloads and less stress compared to exam periods.
+- During these periods, students typically experience lighter workloads and less stress compared to exam periods .
 
 
 ```{r}
@@ -123,11 +123,12 @@ nonexamszndata <- nonexamfiles %>%
 
 3. Calculate the percentage change in prescription rates between exam and non-exam periods to identify seasonal differences in mental health needs.
 
-4.Use `pivot_wider()` to convert the data from long to wide format, where each drug becomes a separate column:
+4. Use `pivot_wider()` to convert the data from long to wide format, where each drug becomes a separate column:
      - **Organizes Drug-Specific Data**: Makes it easier to compare prescriptions across health boards.
      - **Facilitates Summation**: Allows row-wise calculations of total prescriptions across all drugs for each health board.
      - **Prepares for Per Capita Calculations**: Enables easy computation of prescriptions per capita by dividing total prescriptions by population.
      - **Readable Tables**: Produces a concise and clean structure for creating visually appealing summaries.
+     
 5. Use the `gt` package to generate a well-formatted table that summarizes key metrics, including per capita rates, demographic data, and percentage changes, for clear presentation of findings.
 
 ```{r}
@@ -297,7 +298,7 @@ combined_data <- bind_rows(examszndata1, nonexamszndata1) %>%
 
 ```
 
-```{r, fig.width=8, fig.height=6}
+```{r, fig.width=8, fig.height=4}
 library(forcats)
 library(ggplot2)
 library(plotly)
@@ -383,7 +384,7 @@ The next step summarizes the total quantity of prescriptions paid (paid_quantity
 - *Line Plot*: Connects the yearly totals to highlight trends over time.
 - *Facet Wrap: Separates the visualization by the four periods (Semester 1 Finals, **Semester 2 Finals, **Semester 1 Start, **Semester 2 Start*) for clarity.
 
-```{r, fig.width=8, fig.height=6}
+```{r, fig.width=8, fig.height=4}
 library(ggplot2)
 library(plotly)
 
@@ -435,13 +436,7 @@ Post-2020 Surge: Growth is particularly notable from 2020 onwards, likely linked
 
 The following code visualizes the yearly trends in total paid quantities of six commonly prescribed SSRIs and SNRIs across four academic periods: **Semester 1 Finals**, **Semester 2 Finals**, **Semester 1 Start**, and **Semester 2 Start**. The visualization allows comparisons of prescription trends over time for each drug.
 
-**Key Features**
-
-- **Line Chart**: Displays the trends in total paid quantities over the years, grouped by period.
-- **Faceted by Drug**: Each drug (e.g., Citalopram, Sertraline) is shown in a separate panel for clarity.
-- **Dynamic Tooltips**: The interactive plot provides additional information when hovering over the lines.
-
-```{r, fig.width=8, fig.height=8}
+```{r, fig.width=8, fig.height=4}
 library(stringr)
 
 summary_data2 <- joinedfulldata %>%
@@ -496,6 +491,14 @@ interactive_plot
 **Remarks**
 
 The consistently higher prescription rates during **Semester 2 Finals** underscore the critical mental health challenges faced by students during this period. This finding highlights the importance of targeted interventions, such as counseling, stress management workshops, and peer support programs, during the second semester to address the heightened needs of the student population.
+
+
+**References**
+
+
+Vedhara, K., Hyde, J., Gilchrist, I., Tytherleigh, M., & Plummer, S. (2000). Acute stress, memory, attention and cortisol. Psychoneuroendocrinology, 25(6), 535–549. https://doi.org/10.1016/s0306-4530(00)00008-1
+
+Sheryl Ankrom (2024, August 20). How long does it take for antidepressants to work? Verywell Mind. https://www.verywellmind.com/how-long-does-it-take-for-antidepressants-to-work-2584277
 
 
 
