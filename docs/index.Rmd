@@ -117,18 +117,18 @@ nonexamszndata <- nonexamfiles %>%
 
 **Steps for Analysis and the Role of `pivot_wider()`**
 
-1. - Compute the prescription rates for SSRIs and SNRIs during both exam and non-exam periods by accounting for the total population in each health board.
+1. Compute the prescription rates for SSRIs and SNRIs during both exam and non-exam periods by accounting for the total population in each health board.
 
-2. - Add the percentage of individuals aged 18–25 from the demographic data to assess the influence of young adult populations on prescription trends.
+2. Add the percentage of individuals aged 18–25 from the demographic data to assess the influence of young adult populations on prescription trends.
 
-3. - Calculate the percentage change in prescription rates between exam and non-exam periods to identify seasonal differences in mental health needs.
+3. Calculate the percentage change in prescription rates between exam and non-exam periods to identify seasonal differences in mental health needs.
 
-4.  - Use `pivot_wider()` to convert the data from long to wide format, where each drug becomes a separate column:
+4.Use `pivot_wider()` to convert the data from long to wide format, where each drug becomes a separate column:
      - **Organizes Drug-Specific Data**: Makes it easier to compare prescriptions across health boards.
      - **Facilitates Summation**: Allows row-wise calculations of total prescriptions across all drugs for each health board.
      - **Prepares for Per Capita Calculations**: Enables easy computation of prescriptions per capita by dividing total prescriptions by population.
      - **Readable Tables**: Produces a concise and clean structure for creating visually appealing summaries.
-5.- Use the `gt` package to generate a well-formatted table that summarizes key metrics, including per capita rates, demographic data, and percentage changes, for clear presentation of findings.
+5. Use the `gt` package to generate a well-formatted table that summarizes key metrics, including per capita rates, demographic data, and percentage changes, for clear presentation of findings.
 
 ```{r}
 # Load required libraries
@@ -297,7 +297,7 @@ combined_data <- bind_rows(examszndata1, nonexamszndata1) %>%
 
 ```
 
-```{r}
+```{r, fig.width=8, fig.height=10}
 library(forcats)
 library(ggplot2)
 library(plotly)
@@ -337,9 +337,9 @@ interactive_plot
 - Exam seasons show a slight increase in prescriptions, highlighting academic stress as a driver for mental health support.
 
 
-*Combining and Analyzing Prescription Data Across Exam and Non-Exam Periods*
+## Combining and Analyzing Prescription Data Across Exam and Non-Exam Periods
 
-### Merging and Cleaning the Data
+**Merging and Cleaning the Data**
 This code combines the exam and non-exam datasets (`examszndata` and `nonexamszndata`) into a single dataset, `joinedfulldata`. Key steps include:
 - Cleaning column names for consistency.
 - Joining with demographic datasets (`HB_names` and `population_data`)
@@ -375,17 +375,62 @@ joinedfulldata <- joinedfulldata %>%
   group_by(year, period)
 
 ```
+## Total  drug prescription trends by year and academic period
 
-**Yearly Trends of Drug Prescriptions by academic period**
+The next step summarizes the total quantity of prescriptions paid (paid_quantity) by year and period, and visualizes the data using a bar and line plot. Key features of the plot include:
+
+- *Bar Chart*: Displays the total quantity of prescriptions for each year, grouped by period.
+- *Line Plot*: Connects the yearly totals to highlight trends over time.
+- *Facet Wrap: Separates the visualization by the four periods (Semester 1 Finals, **Semester 2 Finals, **Semester 1 Start, **Semester 2 Start*) for clarity.
+
+```{r}
+library(ggplot2)
+
+summary_totals <- joinedfulldata %>%
+  group_by(year, period) %>%
+  summarise(total_paid_quantity = sum(paid_quantity, na.rm = TRUE), .groups = "drop")
+
+# Create the bar and line plot
+ggplot(summary_totals, aes(x = factor(year), y = total_paid_quantity, fill = factor(year))) +
+  geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +
+  geom_line(aes(group = 1), color = "black", size = 1) +
+  geom_point(aes(group = 1), color = "black", size = 2) +
+  geom_text(aes(label = scales::comma(total_paid_quantity)), vjust = -0.5, size = 3.5) +
+  facet_wrap(~ period) +
+  labs(
+    title = "Yearly Comparison of Drug Prescriptions for University Periods",
+    x = "Year",
+    y = "Total Paid Quantity",
+    fill = "Year"
+  ) +
+  scale_y_continuous(labels = scales::comma, limits = c(0, 32000000)) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 12, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none")
+```
+
+**Observations**
+
+The visualization shows a consistent increase in prescription totals from 2018 to 2023 across all university periods indicating a growing reliance on SSRIs and SNRIs for mental health support.
+
+Exam Stress: Semester Finals have slightly higher prescription totals than Semester Starts, reflecting increased stress during exams.
+
+Post-2020 Surge: Growth is particularly notable from 2020 onwards, likely linked to the COVID-19 pandemic's impact on student mental health.
+
+
+## Yearly Trends of Drug Prescriptions by academic period
 
 The following code visualizes the yearly trends in total paid quantities of six commonly prescribed SSRIs and SNRIs across four academic periods: **Semester 1 Finals**, **Semester 2 Finals**, **Semester 1 Start**, and **Semester 2 Start**. The visualization allows comparisons of prescription trends over time for each drug.
 
-###Key Features:
+**Key Features**
+
 - **Line Chart**: Displays the trends in total paid quantities over the years, grouped by period.
 - **Faceted by Drug**: Each drug (e.g., Citalopram, Sertraline) is shown in a separate panel for clarity.
 - **Dynamic Tooltips**: The interactive plot provides additional information when hovering over the lines.
 
-```{r, fig.width=14, fig.height=10}
+```{r, fig.width=8, fig.height=10}
 library(stringr)
 
 summary_data2 <- joinedfulldata %>%
@@ -422,23 +467,26 @@ interactive_plot
 
 ```
 
-### Observations 
-1. - There is a clear upward trend in prescription totals for all periods, indicating a rising reliance on SSRIs and SNRIs for mental health support over time.
+### Observations
 
-2. - Across all drugs, **Semester 2 Finals** consistently show the highest prescription totals compared to other periods.
+
+1. There is a clear upward trend in prescription totals for all periods, indicating a rising reliance on SSRIs and SNRIs for mental health support over time.
+
+2. Across all drugs, **Semester 2 Finals** consistently show the highest prescription totals compared to other periods.
    - This trend suggests that stress and anxiety levels during this time are particularly significant, possibly due to:
      - The cumulative academic burden of the year.
      - The importance of end-of-year examinations in determining academic progression or graduation.
 
-3. - While **Semester 1 Finals** also show elevated prescription rates, they tend to be lower than those observed during **Semester 2 Finals**. This difference could reflect:
+3. While **Semester 1 Finals** also show elevated prescription rates, they tend to be lower than those observed during **Semester 2 Finals**. This difference could reflect:
      - A smaller perceived importance of mid-year assessments compared to end-of-year exams.
      - Seasonal factors, such as additional stress during the spring semester due to other external pressures (e.g., upcoming internships or job applications).
 
-4.  - The trend of **Semester 2 Finals** having the highest prescription rates is evident across all six drugs, including **Sertraline**, **Citalopram**, and **Venlafaxine**, which exhibit the steepest increases during this period.
+4. The trend of **Semester 2 Finals** having the highest prescription rates is evident across all six drugs, including **Sertraline**, **Citalopram**, and **Venlafaxine**, which exhibit the steepest increases during this period.
 
-5. - After 2020, the gap between **Semester 2 Finals** and other periods becomes more pronounced for many drugs, indicating an amplification of stress during the end-of-year period, potentially exacerbated by external factors like the **COVID-19 pandemic**.
+5. After 2020, the gap between **Semester 2 Finals** and other periods becomes more pronounced for many drugs, indicating an amplification of stress during the end-of-year period, potentially exacerbated by external factors like the **COVID-19 pandemic**.
 
-### Remarks:
+**Remarks**
+
 The consistently higher prescription rates during **Semester 2 Finals** underscore the critical mental health challenges faced by students during this period. This finding highlights the importance of targeted interventions, such as counseling, stress management workshops, and peer support programs, during the second semester to address the heightened needs of the student population.
 
 
