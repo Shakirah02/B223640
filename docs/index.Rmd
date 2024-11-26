@@ -45,14 +45,14 @@ library(tidyverse)
 ```{r}
 library(stringr)
 
-# Load and clean Health board names data
+# Load and clean Health board names data HB_names
 HB_names <- read_csv("C:/Data_Science/B223640/data/HB_names.csv") %>%
   clean_names() %>% 
   select(hb, hb_name) %>% 
   rename(hbt = hb) %>%
   mutate(hb_name = str_remove(hb_name, "^NHS\\s"))
 
-# Load and clean population data
+# Load and clean population_data
 population_data <- read_csv("C:/Data_Science/B223640/data/UV103_age_health_board_census.csv", skip = 10) %>%
   rename(hb_name = "Health Board Area 2019",
          hb_population = Count) %>% 
@@ -61,6 +61,7 @@ population_data <- read_csv("C:/Data_Science/B223640/data/UV103_age_health_board
   mutate(hb_name = str_remove(hb_name, "^NHS\\s")) %>% 
   arrange(desc(hb_population))
 
+# Load and clean age_data
 age_data <- read.csv("C:/Data_Science/B223640/data/UV103_age_health_board_census.csv", skip = 10) %>%
   filter(str_detect(Age, "17|18|19|20|21|22|23|24|25")) %>%
   rename(hb_name = "Health.Board.Area.2019") %>% 
@@ -472,22 +473,23 @@ interactive_plot
 
 ### Observations
 
-1. Across all drugs, **Semester 2 Finals** consistently show the highest prescription totals compared to other periods.
-   - This trend suggests that stress and anxiety levels during this time are particularly significant, possibly due to:
-     - The cumulative academic burden of the year.
-     - The importance of end-of-year examinations in determining academic progression or graduation.
+Prescription rates peak during Semester 2 Finals across all drugs, suggesting heightened stress and anxiety due to cumulative academic pressure and the significance of end-of-year exams. Although Semester 1 Finals also see increased prescriptions, they are lower than Semester 2, possibly due to the lesser importance of mid-year exams and additional spring semester stressors like internships.
 
-2. While **Semester 1 Finals** also show elevated prescription rates, they tend to be lower than those observed during **Semester 2 Finals**. This difference could reflect:
-     - A smaller perceived importance of mid-year assessments compared to end-of-year exams.
-     - Seasonal factors, such as additional stress during the spring semester due to other external pressures (e.g., upcoming internships or job applications).
+This trend is evident in all six drugs, particularly Sertraline, Citalopram, and Venlafaxine. Post-2020, the prescription gap between Semester 2 Finals and other periods widens, likely due to increased stress from the COVID-19 pandemic.
 
-3. The trend of **Semester 2 Finals** having the highest prescription rates is evident across all six drugs, including **Sertraline**, **Citalopram**, and **Venlafaxine**, which exhibit the steepest increases.
 
-4. After 2020, the gap between **Semester 2 Finals** and other periods becomes more pronounced for many drugs, indicating an amplification of stress during the end-of-year period, potentially exacerbated by the **COVID-19 pandemic**.
+**Shift in Prescribing Preferences**
+
+Although in the bar graph from 4.2 shows a steady increase in the total number of SSRI and SNRI prescriptions, not all 6 drugs show the same trend according to the line graphs in 4.3, this is possibly due a few reasons. The prescribing preferences have shifted towards sertraline and escitalopram due to their better side effect profiles and wider therapeutic applications. These drugs are perceived as safer and more tolerable compared to older medications like fluoxetine, paroxetine, and citalopram. Sertraline and escitalopram are widely used not only for depression but also for anxiety disorders, which has increased their overall demand. As newer research and guidelines emerge, healthcare providers tend to favor these well-studied and safer medications (Carvalho et al., 2016).
+
+Conversely, the use of older SSRIs such as fluoxetine and paroxetine has plateaued or declined. The competition from newer SSRIs and SNRIs has limited the growth of these older medications. Additionally, paroxetine, in particular, has developed an adverse reputation due to its association with withdrawal difficulties and side effects like weight gain, reducing its popularity over time. This dynamic reflects the ongoing evolution of prescribing practices as healthcare providers aim to optimize treatment efficacy and patient safety.(Bourin et al., 2001)
+
+---
 
 **Remarks**
 
 The consistently higher prescription rates during **Semester 2 Finals** underscore the critical mental health challenges faced by students during this period. This finding highlights the importance of targeted interventions, such as counseling, stress management workshops, and peer support programs, during the second semester to address the heightened needs of the student population.
+
 
 
 **References**
@@ -497,7 +499,8 @@ Vedhara, K., Hyde, J., Gilchrist, I., Tytherleigh, M., & Plummer, S. (2000). Acu
 
 Sheryl Ankrom (2024, August 20). How long does it take for antidepressants to work? Verywell Mind. https://www.verywellmind.com/how-long-does-it-take-for-antidepressants-to-work-2584277
 
+Carvalho, A. F., Sharma, M. S., Brunoni, A. R., Vieta, E., & Fava, G. A. (2016). The Safety, Tolerability and Risks Associated with the Use of Newer Generation Antidepressant Drugs: A Critical Review of the Literature. Psychotherapy and Psychosomatics, 85(5), 270–288. https://doi.org/10.1159/000447034
 
-
+Bourin, M., Chue, P., & Guillon, Y. (2001). Paroxetine: A review. CNS Drug Reviews, 7(1), 25–47. https://doi.org/10.1111/j.1527-3458.2001.tb00189.x
 ```
 
