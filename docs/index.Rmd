@@ -295,7 +295,7 @@ combined_data <- bind_rows(examszndata1, nonexamszndata1) %>%
 
 ```
 
-```{r, fig.width=10, fig.height=4}
+```{r, fig.width=10, fig.height=6}
 library(forcats)
 library(ggplot2)
 library(plotly)
@@ -375,7 +375,7 @@ The next step summarizes the total quantity of prescriptions paid (paid_quantity
 - *Line Plot*: Connects the yearly totals to highlight trends over time.
 - *Facet Wrap: Separates the visualization by the four periods (Semester 1 Finals, **Semester 2 Finals, **Semester 1 Start, **Semester 2 Start*) for clarity.
 
-```{r, fig.width=10, fig.height=4}
+```{r, fig.width=10, fig.height=6}
 library(ggplot2)
 library(plotly)
 
@@ -427,7 +427,7 @@ Post-2020 Surge: Growth is particularly notable from 2020 onwards, likely linked
 
 The following code visualizes the yearly trends in total paid quantities of six commonly prescribed SSRIs and SNRIs across four academic periods: **Semester 1 Finals**, **Semester 2 Finals**, **Semester 1 Start**, and **Semester 2 Start**. The visualization allows comparisons of prescription trends over time for each drug.
 
-```{r, fig.width=10, fig.height=4}
+```{r, fig.width=10, fig.height=6}
 library(stringr)
 
 summary_data2 <- joinedfulldata %>%
