@@ -297,7 +297,7 @@ combined_data <- bind_rows(examszndata1, nonexamszndata1) %>%
 
 ```
 
-```{r, fig.width=8, fig.height=8}
+```{r, fig.width=8, fig.height=6}
 library(forcats)
 library(ggplot2)
 library(plotly)
@@ -383,7 +383,7 @@ The next step summarizes the total quantity of prescriptions paid (paid_quantity
 - *Line Plot*: Connects the yearly totals to highlight trends over time.
 - *Facet Wrap: Separates the visualization by the four periods (Semester 1 Finals, **Semester 2 Finals, **Semester 1 Start, **Semester 2 Start*) for clarity.
 
-```{r}
+```{r, fig.width=8, fig.height=6}
 library(ggplot2)
 library(plotly)
 
@@ -480,21 +480,18 @@ interactive_plot
 
 ### Observations
 
-
-1. There is a clear upward trend in prescription totals for all periods, indicating a rising reliance on SSRIs and SNRIs for mental health support over time.
-
-2. Across all drugs, **Semester 2 Finals** consistently show the highest prescription totals compared to other periods.
+1. Across all drugs, **Semester 2 Finals** consistently show the highest prescription totals compared to other periods.
    - This trend suggests that stress and anxiety levels during this time are particularly significant, possibly due to:
      - The cumulative academic burden of the year.
      - The importance of end-of-year examinations in determining academic progression or graduation.
 
-3. While **Semester 1 Finals** also show elevated prescription rates, they tend to be lower than those observed during **Semester 2 Finals**. This difference could reflect:
+2. While **Semester 1 Finals** also show elevated prescription rates, they tend to be lower than those observed during **Semester 2 Finals**. This difference could reflect:
      - A smaller perceived importance of mid-year assessments compared to end-of-year exams.
      - Seasonal factors, such as additional stress during the spring semester due to other external pressures (e.g., upcoming internships or job applications).
 
-4. The trend of **Semester 2 Finals** having the highest prescription rates is evident across all six drugs, including **Sertraline**, **Citalopram**, and **Venlafaxine**, which exhibit the steepest increases during this period.
+3. The trend of **Semester 2 Finals** having the highest prescription rates is evident across all six drugs, including **Sertraline**, **Citalopram**, and **Venlafaxine**, which exhibit the steepest increases.
 
-5. After 2020, the gap between **Semester 2 Finals** and other periods becomes more pronounced for many drugs, indicating an amplification of stress during the end-of-year period, potentially exacerbated by external factors like the **COVID-19 pandemic**.
+4. After 2020, the gap between **Semester 2 Finals** and other periods becomes more pronounced for many drugs, indicating an amplification of stress during the end-of-year period, potentially exacerbated by the **COVID-19 pandemic**.
 
 **Remarks**
 
