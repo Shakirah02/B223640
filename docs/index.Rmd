@@ -297,7 +297,7 @@ combined_data <- bind_rows(examszndata1, nonexamszndata1) %>%
 
 ```
 
-```{r, fig.width=8, fig.height=10}
+```{r, fig.width=8, fig.height=8}
 library(forcats)
 library(ggplot2)
 library(plotly)
@@ -385,17 +385,20 @@ The next step summarizes the total quantity of prescriptions paid (paid_quantity
 
 ```{r}
 library(ggplot2)
+library(plotly)
 
 summary_totals <- joinedfulldata %>%
   group_by(year, period) %>%
   summarise(total_paid_quantity = sum(paid_quantity, na.rm = TRUE), .groups = "drop")
 
-# Create the bar and line plot
-ggplot(summary_totals, aes(x = factor(year), y = total_paid_quantity, fill = factor(year))) +
-  geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +
-  geom_line(aes(group = 1), color = "black", size = 1) +
-  geom_point(aes(group = 1), color = "black", size = 2) +
-  geom_text(aes(label = scales::comma(total_paid_quantity)), vjust = -0.5, size = 3.5) +
+# Create the base ggplot with both bar and line layers
+p <- ggplot(summary_totals, aes(x = factor(year), y = total_paid_quantity)) +
+  # Bar chart
+  geom_bar(aes(fill = factor(year)), stat = "identity", position = "dodge", alpha = 0.7) +
+  # Line graph
+  geom_line(aes(group = period), color = "black", size = 1) +
+  geom_point(aes(group = period), color = "black", size = 2) +
+  # Add faceting for periods
   facet_wrap(~ period) +
   labs(
     title = "Yearly Comparison of Drug Prescriptions for University Periods",
@@ -408,7 +411,15 @@ ggplot(summary_totals, aes(x = factor(year), y = total_paid_quantity, fill = fac
   theme(
     strip.text = element_text(size = 12, face = "bold"),
     axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "none")
+    legend.position = "none"
+  )
+
+# Convert to an interactive plot
+interactive_plot <- ggplotly(p, tooltip = c("x", "y"))
+
+# Display the interactive plot
+interactive_plot
+
 ```
 
 **Observations**
@@ -430,7 +441,7 @@ The following code visualizes the yearly trends in total paid quantities of six 
 - **Faceted by Drug**: Each drug (e.g., Citalopram, Sertraline) is shown in a separate panel for clarity.
 - **Dynamic Tooltips**: The interactive plot provides additional information when hovering over the lines.
 
-```{r, fig.width=8, fig.height=10}
+```{r, fig.width=8, fig.height=8}
 library(stringr)
 
 summary_data2 <- joinedfulldata %>%
