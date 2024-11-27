@@ -408,11 +408,12 @@ p <- ggplot(summary_totals, aes(x = factor(year), y = total_paid_quantity)) +
     y = "Total Paid Quantity",
     fill = "Year"
   ) +
-  scale_y_continuous(labels = scales::comma, limits = c(0, 32000000)) +
+  scale_y_continuous(labels = scales::comma,  # Format the y-axis labels with commas for readability (e.g., 1,000,000 instead of 1000000)
+                     limits = c(0, 32000000)) +
   theme_minimal() +
   theme(
     strip.text = element_text(size = 12, face = "bold"),
-    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.x = element_text(angle = 45, hjust = 1),# Rotate the text labels 45 degrees for better readability
     legend.position = "none"
   )
 
@@ -431,7 +432,6 @@ The visualization shows a consistent increase in prescription totals from 2018 t
 Exam Stress: Semester Finals have slightly higher prescription totals than Semester Starts, reflecting increased stress during exams.
 
 Post-2020 Surge: Growth is particularly notable from 2020 onwards, likely linked to the COVID-19 pandemic's impact on student mental health.
-
 
 ## Yearly Trends of Drug Prescriptions by academic period
 
@@ -480,20 +480,25 @@ Prescription rates peak during Semester 2 Finals across all drugs, suggesting he
 
 This trend is evident in all six drugs, particularly Sertraline, Citalopram, and Venlafaxine. Post-2020, the prescription gap between Semester 2 Finals and other periods widens, likely due to increased stress from the COVID-19 pandemic.
 
-
 **Shift in Prescribing Preferences**
 
 Although in the bar graph from 4.2 shows a steady increase in the total number of SSRI and SNRI prescriptions, not all 6 drugs show the same trend according to the line graphs in 4.3, this is possibly due a few reasons. The prescribing preferences have shifted towards sertraline and escitalopram due to their better side effect profiles and wider therapeutic applications. These drugs are perceived as safer and more tolerable compared to older medications like fluoxetine, paroxetine, and citalopram. Sertraline and escitalopram are widely used not only for depression but also for anxiety disorders, which has increased their overall demand. As newer research and guidelines emerge, healthcare providers tend to favor these well-studied and safer medications (Carvalho et al., 2016).
 
 Conversely, the use of older SSRIs such as fluoxetine and paroxetine has plateaued or declined. The competition from newer SSRIs and SNRIs has limited the growth of these older medications. Additionally, paroxetine, in particular, has developed an adverse reputation due to its association with withdrawal difficulties and side effects like weight gain, reducing its popularity over time. This dynamic reflects the ongoing evolution of prescribing practices as healthcare providers aim to optimize treatment efficacy and patient safety.(Bourin et al., 2001)
 
----
-
 **Remarks**
 
 The consistently higher prescription rates during **Semester 2 Finals** underscore the critical mental health challenges faced by students during this period. This finding highlights the importance of targeted interventions, such as counseling, stress management workshops, and peer support programs, during the second semester to address the heightened needs of the student population.
 
+### Limitations and future considerations
 
+- The exam season and non-exam season datasets do not include patient age information. This limits the ability to precisely analyze antidepressant consumption trends among young people, who are the target demographic for this analysis, especially in university regions.
+
+- The datasets only provide aggregated prescription data, not individual-level information. This prevents a deeper understanding of factors such as dosage changes, treatment duration, or medication switches within the population.
+
+To enhance the accuracy of the analysis, future studies should incorporate datasets that include patient age information. This would allow for a more targeted examination of antidepressant consumption among young people, particularly in university regions.
+
+Using individual-level data, if available, could provide deeper insights into trends such as dosage changes, treatment duration, and medication switches. This would allow for a more nuanced understanding of how antidepressants are used during exam and non-exam periods.
 
 **References**
 
