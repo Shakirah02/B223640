@@ -86,7 +86,7 @@ The **non-exam season** dataset includes data from:
   - Semester 2 start: January and February.
 - During these periods, students typically experience lighter workloads and less stress compared to exam periods.
 
-**Processing the exam season and non-exam season datasets**
+**Processing the exam season and non-exam season data sets**
 
 - Cleaning column names for consistency.
 - Joining with demographic datasets (`HB_names` and `age_data`)
@@ -135,7 +135,7 @@ nonexamszndata <- process_exam_nonexam_data(nonexamfiles, HB_names, age_data)
 ```
 # Processing prescription data to focus on SSRIs and SNRIs and demographic data.
 
-**Steps for Analysis and the Role of `pivot_wider()`**
+**Steps for Analysis**
 
 1. Compute the prescription rates for SSRIs and SNRIs during both exam and non-exam periods by accounting for the total population in each health board.
 
@@ -160,7 +160,6 @@ library(dplyr)
 # Define a reusable function to process wide-format data
 process_wide_data <- function(data) {
   data %>%
-    mutate(hb_name = str_remove(hb_name, "^NHS\\s")) %>%
     select(hb_name, bnf_item_description, paid_date_month, hb_population, paid_quantity) %>%
     group_by(hb_name, bnf_item_description) %>%
     summarise(total_prescriptions = sum(paid_quantity), .groups = "drop") %>%
@@ -284,11 +283,11 @@ The following function processes the exam and non-exam datasets:
 
 
 ```{r}
-# Define a function to process the data
-process_data <- function(data, season) {
+# Define a function to process and label the data
+process_and_label_data <- function(data, season) {
   data %>%
     group_by(hb_name, bnf_item_description, totalpeople, percentage, hb_population) %>%
-    summarise(total_prescription = sum(paid_quantity, na.rm = TRUE)) %>%
+    summarise(total_prescription = sum(paid_quantity, na.rm = TRUE), .groups = "drop") %>%
     filter(!is.na(bnf_item_description)) %>%
     mutate(
       Season = season,
@@ -297,12 +296,12 @@ process_data <- function(data, season) {
 }
 
 # Process exam and non-exam data
-examszndata1 <- process_data(examszndata, "examseason")
-nonexamszndata1 <- process_data(nonexamszndata, "nonexamseason")
+examszndata1 <- process_and_label_data(examszndata, "examseason")
+nonexamszndata1 <- process_and_label_data(nonexamszndata, "nonexamseason")
 
-# Combine the datasets
+# Combine the datasets and clean
 combined_data <- bind_rows(examszndata1, nonexamszndata1) %>%
-  filter(!is.na(bnf_item_description))
+  drop_na(bnf_item_description)  # Clean combined dataset
 
 ```
 
@@ -356,31 +355,35 @@ This code combines the exam and non-exam datasets (`examszndata` and `nonexamszn
 
 
 ```{r}
+# Helper function to extract year and assign period
+add_year_and_period <- function(data) {
+  data %>%
+    mutate(
+      year = substr(paid_date_month, 1, 4),
+      period = case_when(
+        substr(paid_date_month, 5, 6) %in% c("04", "05") ~ "Semester 1 Finals",
+        substr(paid_date_month, 5, 6) %in% c("11", "12") ~ "Semester 2 Finals",
+        substr(paid_date_month, 5, 6) %in% c("01", "02") ~ "Semester 2 Start",
+        substr(paid_date_month, 5, 6) %in% c("09", "10") ~ "Semester 1 Start",
+        TRUE ~ NA_character_
+      )
+    )
+}
 
-joinedfulldata <- examszndata %>% 
-  full_join(nonexamszndata)
-
-joinedfulldata <- joinedfulldata %>% 
-   mutate(bnf_item_description = str_remove(bnf_item_description, "[_\\s].*")) %>% 
-  mutate(
-     year = substr(paid_date_month, 1, 4),
-  period = case_when(
-    substr(paid_date_month, 5, 6) %in% c("04", "05") ~ "Semester 1 Finals",
-    substr(paid_date_month, 5, 6) %in% c("11", "12") ~ "Semester 2 Finals",
-    substr(paid_date_month, 5, 6) %in% c("01", "02") ~ "Semester 2 Start",
-    substr(paid_date_month, 5, 6) %in% c("09", "10") ~ "Semester 1 Start",
-    TRUE ~ NA_character_
-  )) %>% 
+# Combine exam and non-exam datasets and add year/period columns
+joinedfulldata <- examszndata %>%
+  full_join(nonexamszndata) %>%
+  add_year_and_period() %>%
   group_by(year, period)
 
 ```
 ## Total  drug prescription trends by year and academic period
 
-The next step summarizes the total quantity of prescriptions paid (paid_quantity) by year and period, and visualizes the data using a bar and line plot. Key features of the plot include:
+The next step summarizes the total quantity of prescriptions paid (paid_quantity) by year and period, and visualizes the data using a bar and line plot. 
 
 - *Bar Chart*: Displays the total quantity of prescriptions for each year, grouped by period.
 - *Line Plot*: Connects the yearly totals to highlight trends over time.
-- *Facet Wrap: Separates the visualization by the four periods (Semester 1 Finals, **Semester 2 Finals, **Semester 1 Start, **Semester 2 Start*) for clarity.
+- *Facet Wrap*: Separates the visualization by the four periods (Semester 1 Finals, Semester 2 Finals, Semester 1 Start, Semester 2 Start) for clarity.
 
 ```{r, fig.width=10, fig.height=6}
 library(ggplot2)
@@ -460,11 +463,11 @@ interactive_plot <- ggplotly(
     ) +
     theme_minimal() +
     theme(
-      strip.text = element_text(size = 8, face = "bold"),              # Reduce facet strip text size
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 8),    # Reduce x-axis label size
-      axis.text.y = element_text(size = 8)                            # Reduce y-axis label size
+      strip.text = element_text(size = 8, face = "bold"),              
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 8),    
+      axis.text.y = element_text(size = 8)                            
     ),
-  tooltip = c("x", "y", "color")                                      # Keep relevant tooltips only
+  tooltip = c("x", "y", "color")                                      
 )
 interactive_plot
 
