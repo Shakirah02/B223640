@@ -352,8 +352,6 @@ This code combines the exam and non-exam datasets (`examszndata` and `nonexamszn
 
 - Extracting year and categorizing data into four academic periods: **Semester 1 Finals**, **Semester 2 Finals**, **Semester 1 Start**, and **Semester 2 Start**.
 - Grouping by `year` and `period` for analysis.
-
-
 ```{r}
 # Helper function to extract year and assign period
 add_year_and_period <- function(data) {
@@ -511,4 +509,13 @@ Carvalho, A. F., Sharma, M. S., Brunoni, A. R., Vieta, E., & Fava, G. A. (2016).
 
 Bourin, M., Chue, P., & Guillon, Y. (2001). Paroxetine: A review. CNS Drug Reviews, 7(1), 25–47. https://doi.org/10.1111/j.1527-3458.2001.tb00189.x
 ```
+links to data sets: 
+
+exam and non-exam seasons: https://www.opendata.nhs.scot/dataset/prescriptions-in-the-community
+
+age_data, population_data and HB_names: 
+
+https://www.opendata.nhs.scot/dataset/population-estimates/resource/27a72cc8-d6d8-430c-8b4f-3109a9ceadb1?filters=Year%3A2019
+
+https://www.opendata.nhs.scot/dataset/geography-codes-and-labels/resource/652ff726-e676-4a20-abda-435b98dd7bdc
 
